@@ -1,6 +1,9 @@
 package springrestfulstudy.demo.ws.ui.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import springrestfulstudy.demo.exceptions.UserServiceException;
+import springrestfulstudy.demo.service.UserService;
+import springrestfulstudy.demo.service.impl.UserServiceImpl;
 import springrestfulstudy.demo.ws.ui.model.request.UpdateUserDetailsRequestModel;
 import springrestfulstudy.demo.ws.ui.model.request.UserDetailsRequestModel;
 import springrestfulstudy.demo.ws.ui.model.response.UserRest;
@@ -10,15 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("users") // http://localhost:8080/users
 public class UserController {
 
     Map<String, UserRest> users;
+
+    @Autowired
+    UserService userService;
 
     @GetMapping
     public String getUser(@RequestParam(value = "page", defaultValue = "1") int page,
@@ -44,18 +48,7 @@ public class UserController {
                   consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity createUser(@Valid @RequestBody UserDetailsRequestModel userDetails) {
 
-
-        UserRest returnValue = new UserRest(userDetails.getFirstName(),
-                userDetails.getLastName(),
-                userDetails.getEmail());
-
-        String userId = UUID.randomUUID().toString();
-        returnValue.setId(userId);
-
-        if(users == null)
-            users = new HashMap<String, UserRest>();
-
-        users.put(userId, returnValue);
+        UserRest returnValue = userService.createUser(userDetails);
 
         return new ResponseEntity<UserRest>(returnValue, HttpStatus.OK);
     }
